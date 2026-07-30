@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PSU Monitor — Live Telemetry Panel</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="scan-overlay" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+    </span>
+    <div class="brand-text">
+      <span class="brand-title">PSU MONITOR</span>
+      <span class="brand-sub">Power Supply Telemetry Panel</span>
+    </div>
+  </div>
+
+  <nav class="site-nav" aria-label="Site sections">
+    <a href="index.html" class="nav-link active">Dashboard</a>
+    <a href="records.html" class="nav-link">All Records</a>
+    <a href="charts.html" class="nav-link">Charts</a>
+  </nav>
+
+  <div class="topbar-right">
+    <div class="live-indicator" id="liveIndicator">
+      <span class="live-dot"></span>
+      <span class="live-label">LIVE</span>
+      <span class="live-time" id="liveTime">—</span>
+    </div>
+
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark and light mode" title="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="4.2"/>
+        <path d="M12 2.5v2M12 19.5v2M4.2 4.2l1.5 1.5M18.3 18.3l1.5 1.5M2.5 12h2M19.5 12h2M4.2 19.8l1.5-1.5M18.3 5.7l1.5-1.5" stroke-linecap="round"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 6.8 6.8 0 0 0 20 14.5Z" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<main class="dashboard">
+
+  <!-- ===== Numeric readouts ===== -->
+  <section class="readouts" aria-label="Current sensor readings">
+
+    <article class="readout-card" data-metric="temperature">
+      <div class="readout-head">
+        <span class="readout-label">Temperature</span>
+        <span class="readout-chip chip-temp">TEMP</span>
+      </div>
+      <div class="readout-value">
+        <span class="value-number" id="val-temperature">--</span>
+        <span class="value-unit">°C</span>
+      </div>
+      <div class="readout-foot">
+        <span class="foot-range" id="range-temperature">min -- / max --</span>
+      </div>
+    </article>
+
+    <article class="readout-card" data-metric="humidity">
+      <div class="readout-head">
+        <span class="readout-label">Humidity</span>
+        <span class="readout-chip chip-hum">HUM</span>
+      </div>
+      <div class="readout-value">
+        <span class="value-number" id="val-humidity">--</span>
+        <span class="value-unit">%RH</span>
+      </div>
+      <div class="readout-foot">
+        <span class="foot-range" id="range-humidity">min -- / max --</span>
+      </div>
+    </article>
+
+    <article class="readout-card" data-metric="current">
+      <div class="readout-head">
+        <span class="readout-label">Current</span>
+        <span class="readout-chip chip-cur">I</span>
+      </div>
+      <div class="readout-value">
+        <span class="value-number" id="val-current">--</span>
+        <span class="value-unit">A</span>
+      </div>
+      <div class="readout-foot">
+        <span class="foot-range" id="range-current">min -- / max --</span>
+      </div>
+    </article>
+
+    <article class="readout-card" data-metric="voltage">
+      <div class="readout-head">
+        <span class="readout-label">Voltage</span>
+        <span class="readout-chip chip-volt">V</span>
+      </div>
+      <div class="readout-value">
+        <span class="value-number" id="val-voltage">--</span>
+        <span class="value-unit">V</span>
+      </div>
+      <div class="readout-foot">
+        <span class="foot-range" id="range-voltage">min -- / max --</span>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- ===== Gauge panels: Temperature, Humidity, Current & Voltage ===== -->
+  <section class="gauges" aria-label="Temperature, humidity, current and voltage meters">
+
+    <article class="gauge-card" data-gauge="temperature">
+      <div class="gauge-card-head">
+        <h2>Temperature</h2>
+        <div class="view-switch" role="group" aria-label="Chart type for temperature">
+          <button class="view-btn active" data-view="gauge">Gauge</button>
+          <button class="view-btn" data-view="line">Line</button>
+          <button class="view-btn" data-view="bar">Bar</button>
+        </div>
+      </div>
+      <div class="gauge-body">
+        <canvas id="chart-temperature" height="220"></canvas>
+        <div class="gauge-center" id="center-temperature">
+          <span class="gauge-center-value" id="gaugeval-temperature">--</span>
+          <span class="gauge-center-unit">°C</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="gauge-card" data-gauge="humidity">
+      <div class="gauge-card-head">
+        <h2>Humidity</h2>
+        <div class="view-switch" role="group" aria-label="Chart type for humidity">
+          <button class="view-btn active" data-view="gauge">Gauge</button>
+          <button class="view-btn" data-view="line">Line</button>
+          <button class="view-btn" data-view="bar">Bar</button>
+        </div>
+      </div>
+      <div class="gauge-body">
+        <canvas id="chart-humidity" height="220"></canvas>
+        <div class="gauge-center" id="center-humidity">
+          <span class="gauge-center-value" id="gaugeval-humidity">--</span>
+          <span class="gauge-center-unit">%RH</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="gauge-card" data-gauge="current">
+      <div class="gauge-card-head">
+        <h2>Current Draw</h2>
+        <div class="view-switch" role="group" aria-label="Chart type for current">
+          <button class="view-btn active" data-view="gauge">Gauge</button>
+          <button class="view-btn" data-view="line">Line</button>
+          <button class="view-btn" data-view="bar">Bar</button>
+        </div>
+      </div>
+      <div class="gauge-body">
+        <canvas id="chart-current" height="220"></canvas>
+        <div class="gauge-center" id="center-current">
+          <span class="gauge-center-value" id="gaugeval-current">--</span>
+          <span class="gauge-center-unit">A</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="gauge-card" data-gauge="voltage">
+      <div class="gauge-card-head">
+        <h2>Output Voltage</h2>
+        <div class="view-switch" role="group" aria-label="Chart type for voltage">
+          <button class="view-btn active" data-view="gauge">Gauge</button>
+          <button class="view-btn" data-view="line">Line</button>
+          <button class="view-btn" data-view="bar">Bar</button>
+        </div>
+      </div>
+      <div class="gauge-body">
+        <canvas id="chart-voltage" height="220"></canvas>
+        <div class="gauge-center" id="center-voltage">
+          <span class="gauge-center-value" id="gaugeval-voltage">--</span>
+          <span class="gauge-center-unit">V</span>
+        </div>
+      </div>
+    </article>
+
+  </section>
+
+  <!-- ===== History explorer ===== -->
+  <section class="history" aria-label="Historical data explorer">
+    <div class="history-head">
+      <h2>History Explorer</h2>
+      <p class="history-sub">Data is retained for 30 days and purged automatically on a rolling basis.</p>
+    </div>
+
+    <div class="history-controls">
+      <div class="control-group">
+        <label for="historyDate">Date</label>
+        <input type="date" id="historyDate">
+      </div>
+
+      <div class="control-group">
+        <label for="historyHour">Hour</label>
+        <select id="historyHour">
+          <option value="">All day</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="historyMetric">Metric</label>
+        <select id="historyMetric">
+          <option value="temperature">Temperature</option>
+          <option value="humidity">Humidity</option>
+          <option value="current">Current</option>
+          <option value="voltage">Voltage</option>
+          <option value="all">All metrics</option>
+        </select>
+      </div>
+
+      <div class="control-group chart-type-group">
+        <label>Chart type</label>
+        <div class="view-switch" role="group" aria-label="Chart type for history">
+          <button class="view-btn active" data-history-view="line">Line</button>
+          <button class="view-btn" data-history-view="bar">Bar</button>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="loadHistoryBtn" type="button">View data</button>
+    </div>
+
+    <div class="history-chart-wrap">
+      <canvas id="chart-history" height="110"></canvas>
+      <div class="history-empty" id="historyEmpty">No data for this selection yet.</div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <span>PSU Monitor · Telemetry stored in MySQL · Auto-purge after 30 days</span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/gauges.js"></script>
+<script src="js/history.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
