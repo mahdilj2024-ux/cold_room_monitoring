@@ -1,3 +1,9 @@
+<img width="1536" height="672" alt="80f76c36-7e9e-41f8-ba58-950991cef39e" src="https://github.com/user-attachments/assets/08a0ff3a-f003-4e1b-be17-d210960375da" />
+
+
+
+
+
 # Project Objective
 
 Develop an edge-based monitoring system capable of continuously measuring environmental and electrical parameters inside commercial cold rooms while providing both local visualization and cloud connectivity for remote supervision.
